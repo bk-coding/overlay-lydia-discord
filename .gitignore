@@ -1,0 +1,26 @@
+# Fichiers de configuration personnels
+config.php
+
+# Fichiers de données générés
+data.json
+
+# Fichiers temporaires et logs
+*.log
+*.tmp
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers d'environnement
+.env
+.env.local
+
+# Dossiers de cache
+cache/
+tmp/
+
+# Fichiers de sauvegarde
+*.bak
+*.backup
+*~

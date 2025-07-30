@@ -8,8 +8,8 @@ Ce système d'overlay affiche une barre de progression pour une cagnotte Lydia a
 
 ### 1. Cloner le projet
 ```bash
-git clone https://github.com/VOTRE-USERNAME/VOTRE-REPO.git
-cd barre
+git clone https://github.com/bk-coding/overlay-lydia-discord.git
+cd overlay-lydia-discord
 ```
 
 ### 2. Configuration

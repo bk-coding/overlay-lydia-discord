@@ -42,6 +42,28 @@ header('Content-Type: text/html; charset=UTF-8');
       padding: <?= $position_v === 'top' ? $apparence['marge_verticale'] : '0' ?>px <?= $position_h === 'right' ? $apparence['marge_horizontale'] : '0' ?>px <?= $position_v === 'bottom' ? $apparence['marge_verticale'] : '0' ?>px <?= $position_h === 'left' ? $apparence['marge_horizontale'] : '0' ?>px;
       box-sizing: border-box;
     }
+    .overlay-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: <?= !empty($apparence['texte_personnalise']) ? $apparence['espacement_texte'] : '0' ?>px;
+    }
+    .texte-personnalise {
+      color: <?= $apparence['couleur_texte'] ?>;
+      font-size: <?= $apparence['taille_police'] ?>px;
+      font-weight: <?= $apparence['poids_police'] ?>;
+      text-shadow: 
+        2px 2px 4px rgba(0,0,0,1),
+        -1px -1px 2px rgba(0,0,0,0.8),
+        1px -1px 2px rgba(0,0,0,0.8),
+        -1px 1px 2px rgba(0,0,0,0.8),
+        0 0 8px rgba(0,0,0,0.7);
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      white-space: nowrap;
+      display: <?= !empty($apparence['texte_personnalise']) ? 'block' : 'none' ?>;
+    }
     .container {
       width: <?= $apparence['largeur'] ?>px;
       height: <?= $apparence['hauteur'] ?>px;
@@ -82,9 +104,15 @@ header('Content-Type: text/html; charset=UTF-8');
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="progress" id="progress"></div>
-    <div class="label" id="label"><?= htmlspecialchars($messages['chargement']) ?></div>
+  <div class="overlay-wrapper">
+    <?php if (!empty($apparence['texte_personnalise'])): ?>
+    <div class="texte-personnalise"><?= htmlspecialchars($apparence['texte_personnalise']) ?></div>
+    <?php endif; ?>
+    
+    <div class="container">
+      <div class="progress" id="progress"></div>
+      <div class="label" id="label"><?= htmlspecialchars($messages['chargement']) ?></div>
+    </div>
   </div>
 
   <?php if ($audio['actif']): ?>

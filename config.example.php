@@ -55,6 +55,10 @@ return [
         'taille_police' => 20,           // Taille de la police en pixels
         'poids_police' => 900,           // Poids de la police (100-900)
         
+        // Texte personnalisé au-dessus de la barre (optionnel)
+        'texte_personnalise' => '',      // Texte à afficher au-dessus (vide = pas de texte)
+        'espacement_texte' => 10,        // Espacement entre le texte et la barre en pixels
+        
         // Position de l'overlay (coin inférieur droit par défaut)
         'position_horizontale' => 'droite',  // 'gauche' ou 'droite'
         'position_verticale' => 'bas',       // 'haut' ou 'bas'

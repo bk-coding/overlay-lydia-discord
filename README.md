@@ -35,6 +35,7 @@ nano config.php  # ou votre éditeur préféré
 - **Webhook Discord** : Remplacez `VOTRE_WEBHOOK_ID` et `VOTRE_WEBHOOK_TOKEN`
 - **Objectif** : Définissez votre objectif de cagnotte
 - **Apparence** : Personnalisez les couleurs et dimensions selon vos goûts
+- **Texte personnalisé** : Ajoutez un texte au-dessus de la barre (optionnel)
 
 ### 4. Démarrage du serveur
 ```bash
@@ -98,6 +99,10 @@ overlay-lydia-discord/
     // Texte
     'taille_police' => 20,           // Taille de la police en pixels
     'poids_police' => 900,           // Poids de la police (100-900)
+    
+    // Texte personnalisé au-dessus de la barre (optionnel)
+    'texte_personnalise' => 'Objectif Stream',  // Texte à afficher (vide = pas de texte)
+    'espacement_texte' => 10,        // Espacement entre le texte et la barre en pixels
     
     // Position de l'overlay
     'position_horizontale' => 'droite',  // 'gauche' ou 'droite'
@@ -188,6 +193,27 @@ overlay-lydia-discord/
 ```php
 'position_horizontale' => 'gauche',
 'position_verticale' => 'haut',
+```
+
+### Exemples de texte personnalisé :
+```php
+// Texte d'objectif simple
+'texte_personnalise' => 'Objectif Stream',
+
+// Texte motivationnel
+'texte_personnalise' => '🎯 Aidez-nous à atteindre notre objectif !',
+
+// Texte d'événement
+'texte_personnalise' => '🎉 Marathon Caritatif - Merci pour votre soutien',
+
+// Texte avec émojis
+'texte_personnalise' => '💰 Cagnotte du jour 💰',
+
+// Désactiver le texte (pas de texte au-dessus)
+'texte_personnalise' => '',
+
+// Ajuster l'espacement
+'espacement_texte' => 15,  // Plus d'espace entre le texte et la barre
 ```
 
 ## 🆘 Dépannage

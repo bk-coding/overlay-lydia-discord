@@ -2,7 +2,7 @@
 /**
  * Script de mise à jour de la cagnotte Lydia
  * Récupère le montant depuis la page Lydia et met à jour data.json
- * Envoie des notifications Discord en cas de changement
+ * Version sans Discord pour éviter les erreurs
  */
 
 // Suppression de l'affichage des erreurs pour éviter les problèmes avec les headers JSON
@@ -23,13 +23,9 @@ if (!$config || !is_array($config)) {
     exit;
 }
 
-// Inclusion du système Discord
-require_once __DIR__ . '/discord.php';
-
 // Récupération des paramètres depuis la configuration avec vérifications
 $url = isset($config['lydia']['url']) ? $config['lydia']['url'] : '';
 $objectif = isset($config['lydia']['objectif']) ? $config['lydia']['objectif'] : 0;
-$DISCORD_WEBHOOK_URL = isset($config['discord']['webhook_url']) ? $config['discord']['webhook_url'] : '';
 
 // Vérification que l'URL est valide
 if (empty($url)) {
@@ -135,26 +131,17 @@ if (!$resultat['success']) {
 // Extraction du montant
 $amount = extraireMontant($resultat['html']);
 
-// Initialisation du système Discord si l'URL est configurée
-$discordNotification = false;
-if ($config['discord']['actif'] && !empty($DISCORD_WEBHOOK_URL) && strpos($DISCORD_WEBHOOK_URL, "VOTRE_WEBHOOK") === false) {
-    $discord = new DiscordWebhook($DISCORD_WEBHOOK_URL, __DIR__ . '/' . $config['technique']['fichier_donnees']);
-    
-    // Sauvegarde avec notification Discord automatique
-    $discordNotification = $discord->sauvegarderAvecNotification($amount, $objectif);
-} else {
-    // Sauvegarde classique sans Discord
-    $data = [
-        'montant' => $amount,
-        'objectif' => $objectif,
-        'derniere_maj' => date('Y-m-d H:i:s')
-    ];
-    
-    if (file_put_contents(__DIR__ . '/' . $config['technique']['fichier_donnees'], json_encode($data, JSON_PRETTY_PRINT)) === false) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Erreur lors de la sauvegarde des données', 'success' => false]);
-        exit;
-    }
+// Sauvegarde des données
+$data = [
+    'montant' => $amount,
+    'objectif' => $objectif,
+    'derniere_maj' => date('Y-m-d H:i:s')
+];
+
+if (file_put_contents(__DIR__ . '/' . $config['technique']['fichier_donnees'], json_encode($data, JSON_PRETTY_PRINT)) === false) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Erreur lors de la sauvegarde des données', 'success' => false]);
+    exit;
 }
 
 // Réponse de succès
@@ -164,7 +151,7 @@ echo json_encode([
     'objectif' => $objectif,
     'pourcentage' => $objectif > 0 ? round(($amount / $objectif) * 100, 2) : 0,
     'derniere_maj' => date('Y-m-d H:i:s'),
-    'discord_notification' => $discordNotification,
+    'discord_notification' => false,
     'success' => true
 ]);
 

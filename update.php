@@ -24,7 +24,7 @@ if (!$config || !is_array($config)) {
 }
 
 // Inclusion du système Discord
-require_once __DIR__ . '/discord.php';
+    require_once __DIR__ . '/discord.php';
 
 // Récupération des paramètres depuis la configuration avec vérifications
 $url = isset($config['lydia']['url']) ? $config['lydia']['url'] : '';

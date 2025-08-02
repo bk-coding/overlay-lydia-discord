@@ -1,14 +1,16 @@
-# Système d'Overlay de Cagnotte - Configuration Centralisée
+# Système d'Overlay de Cagnotte Lydia
 
 ## 📋 Vue d'ensemble
 
 Ce système d'overlay affiche une barre de progression pour une cagnotte Lydia avec notifications Discord et effets sonores. Toute la configuration est centralisée dans le fichier `config.php` pour faciliter la maintenance.
 
-### ✨ Nouvelles fonctionnalités v2.0 :
+### ✨ Fonctionnalités :
 - **Interface d'administration web** : Modifiez votre configuration via une interface graphique
 - **Authentification sécurisée** : Protection par code de connexion et sessions
-- **Configuration en temps réel** : Changements appliqués immédiatement
-- **Interface moderne et responsive** : Compatible mobile et desktop
+- **Configuration centralisée** : Tous les paramètres dans un seul fichier
+- **Notifications Discord** : Alertes automatiques lors des contributions
+- **Effets sonores** : Son de caisse enregistreuse lors des dons
+- **Personnalisation complète** : Couleurs, position, texte personnalisable
 
 ## 📋 Prérequis
 
@@ -21,59 +23,58 @@ Ce système d'overlay affiche une barre de progression pour une cagnotte Lydia a
 
 ## 🚀 Installation
 
-### 1. Cloner le projet
-```bash
-git clone https://github.com/bk-coding/overlay-lydia-discord.git
-cd overlay-lydia-discord
-```
+### 1. Télécharger le projet
+Téléchargez tous les fichiers dans un dossier de votre serveur web.
 
-### 2. Configuration
+### 2. Configuration initiale
 ```bash
-# Copiez le fichier de configuration modèle
+# Copiez le fichier de configuration d'exemple
 cp config.example.php config.php
 
-# Éditez le fichier avec vos paramètres personnels
+# Modifiez le fichier avec vos paramètres personnels
 nano config.php  # ou votre éditeur préféré
 ```
 
 ### 3. Configuration
 
 #### Option A : Interface d'administration web (Recommandée)
-1. Accédez à `http://localhost:8000/index.php`
+1. Accédez à `http://votre-serveur/index.php`
 2. Entrez le code de connexion (par défaut : `admin123`)
 3. Modifiez vos paramètres via l'interface graphique
 4. Sauvegardez automatiquement
 
 #### Option B : Modification manuelle du fichier config.php
-- **URL Lydia** : Remplacez `VOTRE_ID_CAGNOTTE` par votre vrai ID
-- **Webhook Discord** : Remplacez `VOTRE_WEBHOOK_ID` et `VOTRE_WEBHOOK_TOKEN`
+- **URL Lydia** : Modifiez l'URL de votre cagnotte Lydia
+- **Webhook Discord** : Configurez votre webhook Discord
 - **Objectif** : Définissez votre objectif de cagnotte
 - **Apparence** : Personnalisez les couleurs et dimensions selon vos goûts
 - **Texte personnalisé** : Ajoutez un texte au-dessus de la barre (optionnel)
-- **Code d'administration** : Changez le code par défaut pour sécuriser l'accès
+- **Code d'administration** : ⚠️ **IMPORTANT** : Changez absolument le code par défaut `CHANGEZ_MOI` dans `config.php` pour sécuriser l'accès
 
-### 4. Démarrage du serveur
+### 3. Démarrage du serveur
 ```bash
-# Démarrez un serveur PHP local
+# Démarrez un serveur PHP local pour les tests
 php -S localhost:8000
 
 # Ou utilisez votre serveur web préféré (Apache, Nginx, etc.)
 ```
 
+### 4. Fichiers audio
+Assurez-vous que le fichier `caisse.mp3` est présent dans le dossier pour les effets sonores.
+
 ## 🗂️ Structure des fichiers
 
 ```
 overlay-lydia-discord/
-├── config.example.php   # 📋 Modèle de configuration (à copier)
-├── config.php          # ⚙️ Configuration personnelle (créé par vous)
-├── index.php            # 🔧 Interface d'administration web
-├── overlay.php          # 🎨 Générateur d'overlay HTML
-├── update.php           # 🔄 Script de mise à jour Lydia
-├── discord.php          # 💬 Système de notifications Discord
-├── data.json            # 📊 Données de la cagnotte (généré automatiquement)
-├── caisse.mp3           # 🔊 Son de contribution
-├── .gitignore           # 🚫 Fichiers à exclure de Git
-└── README.md            # 📖 Documentation du système
+├── config.example.php  # 📋 Fichier de configuration d'exemple
+├── config.php          # ⚙️ Configuration centralisée du système (à créer)
+├── index.php           # 🔧 Interface d'administration web
+├── overlay.php         # 🎨 Générateur d'overlay HTML
+├── update.php          # 🔄 Script de mise à jour Lydia
+├── discord.php         # 💬 Système de notifications Discord
+├── data.json           # 📊 Données de la cagnotte (généré automatiquement)
+├── caisse.mp3          # 🔊 Son de contribution
+└── README.md           # 📖 Documentation du système
 ```
 
 ## ⚙️ Configuration
@@ -83,7 +84,7 @@ overlay-lydia-discord/
 #### 1. Configuration Lydia
 ```php
 'lydia' => [
-    'url' => 'https://pots.lydia.me/collect/pots?id=VOTRE-ID',  // Votre URL Lydia
+    'url' => 'https://pots.lydia.me/collect/pots?id=VOTRE-ID-CAGNOTTE',  // Votre URL Lydia
     'objectif' => 500,  // Objectif en euros
 ],
 ```
@@ -91,7 +92,7 @@ overlay-lydia-discord/
 #### 2. Configuration Discord
 ```php
 'discord' => [
-    'webhook_url' => 'https://discord.com/api/webhooks/VOTRE-WEBHOOK',
+    'webhook_url' => 'https://discord.com/api/webhooks/VOTRE_WEBHOOK_ID/VOTRE_WEBHOOK_TOKEN',
     'actif' => true,  // true/false pour activer/désactiver
 ],
 ```
@@ -168,28 +169,28 @@ overlay-lydia-discord/
 #### 7. Configuration Administration
 ```php
 'admin' => [
-    'code_connexion' => 'admin123',      // Code de connexion (CHANGEZ-LE !)
+    'code_connexion' => 'CHANGEZ_MOI',   // Code de connexion (CHANGEZ-LE ABSOLUMENT !)
     'duree_session' => 3600,             // Durée de session (1 heure)
     'nom_session' => 'cagnotte_admin',   // Nom de la session
 ],
 ```
 
-> ⚠️ **SÉCURITÉ** : Changez immédiatement le code de connexion par défaut !
+> ⚠️ **SÉCURITÉ** : Changez absolument le code de connexion `CHANGEZ_MOI` pour sécuriser votre interface d'administration !
 
 ## 🚀 Utilisation
 
 ### Interface d'administration :
-**URL d'administration** : `http://localhost:8000/index.php`
+**URL d'administration** : `http://votre-serveur/overlay-lydia-discord/index.php`
 - Connectez-vous avec votre code d'administration
 - Modifiez tous les paramètres en temps réel
 - Testez vos modifications instantanément
 
 ### Pour OBS/Streamlabs :
-**URL de l'overlay** : `http://localhost:8000/overlay.php`
+**URL de l'overlay** : `http://votre-serveur/overlay-lydia-discord/overlay.php`
 
 ### Mise à jour automatique :
 - Configurez un cron job pour exécuter `update.php` toutes les minutes
-- Ou appelez manuellement : `http://localhost:8000/update.php`
+- Ou appelez manuellement : `http://votre-serveur/overlay-lydia-discord/update.php`
 
 ## 🔧 Maintenance
 
@@ -202,7 +203,7 @@ overlay-lydia-discord/
 ### 📝 Pour modifier votre configuration :
 
 #### Méthode recommandée (Interface web) :
-1. Accédez à `http://localhost:8000/index.php`
+1. Accédez à `http://votre-serveur/overlay-lydia-discord/index.php`
 2. Connectez-vous avec votre code d'administration
 3. Modifiez les paramètres via l'interface
 4. Sauvegardez (automatique)
@@ -261,15 +262,22 @@ overlay-lydia-discord/
 
 ### L'overlay ne s'affiche pas :
 - Vérifiez que le serveur PHP est démarré
-- Vérifiez l'URL dans OBS : `http://localhost:8000/overlay-lydia-discord/overlay.php`
+- Vérifiez l'URL dans OBS : `http://votre-serveur/overlay-lydia-discord/overlay.php`
+- Vérifiez que tous les fichiers sont présents dans le dossier
 
 ### Le son ne fonctionne pas :
-- Vérifiez que `caisse.mp3` est présent
+- Vérifiez que `caisse.mp3` est présent dans le dossier
 - Vérifiez `'actif' => true` dans la section audio de `config.php`
+- Vérifiez le volume dans la configuration
 
 ### Discord ne fonctionne pas :
 - Vérifiez votre URL de webhook dans `config.php`
 - Vérifiez `'actif' => true` dans la section discord
+- Testez votre webhook Discord directement
+
+### L'interface d'administration ne fonctionne pas :
+- Vérifiez le code de connexion dans `config.php`
+- Vérifiez que PHP est correctement configuré sur votre serveur
 
 ## 📞 Support
 

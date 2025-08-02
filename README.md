@@ -1,14 +1,47 @@
-# Système d'Overlay de Cagnotte - Configuration Centralisée
+# Système de Cagnotte Overlay Sécurisé
 
-## 📋 Vue d'ensemble
+Un système complet et sécurisé pour afficher une barre de progression de cagnotte Lydia en overlay, avec notifications Discord automatiques.
 
-Ce système d'overlay affiche une barre de progression pour une cagnotte Lydia avec notifications Discord et effets sonores. Toute la configuration est centralisée dans le fichier `config.php` pour faciliter la maintenance.
+## 🚀 Installation Rapide
 
-### ✨ Nouvelles fonctionnalités v2.0 :
-- **Interface d'administration web** : Modifiez votre configuration via une interface graphique
-- **Authentification sécurisée** : Protection par code de connexion et sessions
-- **Configuration en temps réel** : Changements appliqués immédiatement
-- **Interface moderne et responsive** : Compatible mobile et desktop
+1. **Cloner ou télécharger** les fichiers dans votre répertoire web
+2. **Exécuter le script de déploiement** :
+   ```bash
+   php deploy.php
+   ```
+3. **Configurer** vos URLs dans le panneau d'administration
+4. **Vérifier la sécurité** :
+   ```bash
+   php security_check.php
+   ```
+
+## 📋 Fonctionnalités
+
+### ✨ Interface Utilisateur
+- **Panneau d'administration** sécurisé avec authentification
+- **Configuration complète** de l'apparence et du comportement
+- **Aperçu en temps réel** des modifications
+- **Validation automatique** des paramètres
+
+### 🔒 Sécurité Avancée
+- **Authentification** avec hachage sécurisé des mots de passe
+- **Protection CSRF** sur tous les formulaires
+- **Limitation de taux** pour prévenir les attaques
+- **Validation stricte** de toutes les entrées
+- **Journalisation** des événements de sécurité
+- **En-têtes de sécurité** HTTP configurés
+
+### 🎨 Overlay Personnalisable
+- **Apparence** entièrement configurable (couleurs, tailles, positions)
+- **Effets sonores** avec contrôle du volume
+- **Animations** fluides de la barre de progression
+- **Messages** personnalisables
+
+### 🔔 Notifications Discord
+- **Webhooks Discord** pour les notifications automatiques
+- **Embeds riches** avec informations détaillées
+- **Notifications** lors des changements de montant
+- **Test de connexion** intégré
 
 ## 📋 Prérequis
 

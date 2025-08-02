@@ -15,22 +15,12 @@ php_value post_max_size 8M
 # Désactiver les fonctions PHP dangereuses (curl_exec autorisé pour update.php)
 php_value disable_functions "exec,passthru,shell_exec,system,proc_open,popen,parse_ini_file,show_source"
 
-# Protection contre les attaques par force brute
-<RequireAll>
-    # Limiter les tentatives de connexion
-    Require all granted
-</RequireAll>
-
 # Empêcher l'accès aux fichiers sensibles
 <Files "config.php">
     Require all denied
 </Files>
 
 <Files "security.php">
-    Require all denied
-</Files>
-
-<Files "migrate_password.php">
     Require all denied
 </Files>
 
@@ -120,10 +110,10 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Bloquer les user agents suspects
-    RewriteCond %{HTTP_USER_AGENT} (libwww-perl|wget|python|nikto|curl|scan|java|winhttp|clshttp|loader) [NC,OR]
+    # Bloquer les user agents suspects (curl autorisé pour update.php)
+    RewriteCond %{HTTP_USER_AGENT} (libwww-perl|wget|python|nikto|scan|java|winhttp|clshttp|loader) [NC,OR]
     RewriteCond %{HTTP_USER_AGENT} (%0A|%0D|%27|%3C|%3E|%00) [NC,OR]
-    RewriteCond %{HTTP_USER_AGENT} (;|<|>|'|"|\)|\(|%0A|%0D|%22|%27|%28|%3C|%3E|%00).*(libwww-perl|wget|python|nikto|curl|scan|java|winhttp|HTTrack|clshttp|archiver|loader|email|harvest|extract|grab|miner) [NC]
+    RewriteCond %{HTTP_USER_AGENT} (;|<|>|'|"|\)|\(|%0A|%0D|%22|%27|%28|%3C|%3E|%00).*(libwww-perl|wget|python|nikto|scan|java|winhttp|HTTrack|clshttp|archiver|loader|email|harvest|extract|grab|miner) [NC]
     RewriteRule .* - [F,L]
     
     # Bloquer les tentatives d'injection SQL dans l'URL

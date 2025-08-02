@@ -12,8 +12,8 @@ php_flag log_errors on
 php_value upload_max_filesize 2M
 php_value post_max_size 8M
 
-# Désactiver les fonctions PHP dangereuses
-php_value disable_functions "exec,passthru,shell_exec,system,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source"
+# Désactiver les fonctions PHP dangereuses (curl_exec autorisé pour update.php)
+php_value disable_functions "exec,passthru,shell_exec,system,proc_open,popen,parse_ini_file,show_source"
 
 # Protection contre les attaques par force brute
 <RequireAll>
@@ -40,6 +40,14 @@ php_value disable_functions "exec,passthru,shell_exec,system,proc_open,popen,cur
     <RequireAll>
         Require all granted
         Require method GET
+    </RequireAll>
+</Files>
+
+# Autoriser l'accès à update.php pour les mises à jour automatiques
+<Files "update.php">
+    <RequireAll>
+        Require all granted
+        Require method GET POST
     </RequireAll>
 </Files>
 

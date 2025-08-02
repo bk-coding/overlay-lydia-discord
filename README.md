@@ -14,6 +14,10 @@ Un système complet et sécurisé pour afficher une barre de progression de cagn
    ```bash
    php security_check.php
    ```
+5. **Créer une sauvegarde** (optionnel) :
+   ```bash
+   php backup.php
+   ```
 
 ## 📋 Fonctionnalités
 
@@ -42,6 +46,12 @@ Un système complet et sécurisé pour afficher une barre de progression de cagn
 - **Embeds riches** avec informations détaillées
 - **Notifications** lors des changements de montant
 - **Test de connexion** intégré
+
+### 🛠️ Scripts d'Administration
+- **Script de déploiement** (`deploy.php`) pour l'installation automatique
+- **Vérification de sécurité** (`security_check.php`) avec score détaillé
+- **Système de sauvegarde** (`backup.php`) avec restauration
+- **Gestionnaire de sécurité** (`security.php`) centralisé
 
 ## 📋 Prérequis
 
@@ -97,16 +107,25 @@ php -S localhost:8000
 
 ```
 overlay-lydia-discord/
-├── config.example.php   # 📋 Modèle de configuration (à copier)
-├── config.php          # ⚙️ Configuration personnelle (créé par vous)
-├── index.php            # 🔧 Interface d'administration web
-├── overlay.php          # 🎨 Générateur d'overlay HTML
-├── update.php           # 🔄 Script de mise à jour Lydia
-├── discord.php          # 💬 Système de notifications Discord
-├── data.json            # 📊 Données de la cagnotte (généré automatiquement)
-├── caisse.mp3           # 🔊 Son de contribution
 ├── .gitignore           # 🚫 Fichiers à exclure de Git
-└── README.md            # 📖 Documentation du système
+├── .htaccess            # 🔒 Configuration Apache (sécurité)
+├── .user.ini            # 🔧 Configuration PHP (sécurité)
+├── README.md            # 📖 Documentation du système
+├── SECURITY.md          # 🛡️ Documentation sécurité
+├── backup.php           # 💾 Script de sauvegarde automatique
+├── backup/              # 📦 Dossier des sauvegardes
+├── caisse.mp3           # 🔊 Son de contribution
+├── config.example.php   # 📋 Modèle de configuration (à copier)
+├── config.php           # ⚙️ Configuration personnelle (créé par vous)
+├── data.json            # 📊 Données de la cagnotte (généré automatiquement)
+├── deploy.php           # 🚀 Script de déploiement automatique
+├── discord.php          # 💬 Système de notifications Discord
+├── index.php            # 🔧 Interface d'administration web
+├── logs/                # 📝 Dossier des logs de sécurité
+├── overlay.php          # 🎨 Générateur d'overlay HTML
+├── security.php         # 🛡️ Gestionnaire de sécurité
+├── security_check.php   # ✅ Script de vérification sécurité
+└── update.php           # 🔄 Script de mise à jour Lydia
 ```
 
 ## ⚙️ Configuration
@@ -224,13 +243,84 @@ overlay-lydia-discord/
 - Configurez un cron job pour exécuter `update.php` toutes les minutes
 - Ou appelez manuellement : `http://localhost:8000/update.php`
 
+### 🛠️ Scripts d'Administration
+
+#### Script de déploiement :
+```bash
+php deploy.php
+```
+- Configure automatiquement les permissions
+- Crée les répertoires nécessaires (`logs/`, `backup/`)
+- Génère les fichiers de configuration par défaut
+- Vérifie la configuration PHP
+- Lance une vérification de sécurité
+
+#### Vérification de sécurité :
+```bash
+php security_check.php
+```
+- Analyse complète de la sécurité du système
+- Score de sécurité global (0-100%)
+- Recommandations d'amélioration
+- Vérification des permissions de fichiers
+- Contrôle de la configuration
+
+#### Système de sauvegarde :
+```bash
+# Créer une sauvegarde
+php backup.php
+
+# Sauvegarde silencieuse avec nettoyage automatique
+php backup.php --auto
+
+# Créer une sauvegarde et nettoyer les anciennes
+php backup.php --clean
+
+# Lister les sauvegardes existantes
+php backup.php --list
+
+# Restaurer une sauvegarde spécifique
+php backup.php --restore=sauvegarde_2025-08-02_17-06-54
+```
+
+**Fichiers sauvegardés :**
+- `config.php` - Configuration principale
+- `data.json` - Données de la cagnotte
+- `.htaccess` - Configuration Apache
+- `.user.ini` - Configuration PHP
+
 ## 🔧 Maintenance
+
+### 🛡️ Sécurité
+
+#### Vérification régulière :
+```bash
+# Vérifier le score de sécurité
+php security_check.php
+
+# Créer une sauvegarde avant modifications
+php backup.php
+```
+
+#### Bonnes pratiques :
+- **Changez le mot de passe** d'administration par défaut
+- **Vérifiez les logs** régulièrement dans `logs/`
+- **Créez des sauvegardes** avant les modifications importantes
+- **Surveillez le score de sécurité** (objectif : >90%)
+
+#### Logs de sécurité :
+Les événements de sécurité sont enregistrés dans `logs/security.log` :
+- Tentatives de connexion
+- Modifications de configuration
+- Erreurs de validation
+- Accès non autorisés
 
 ### ✅ Avantages de la configuration centralisée :
 - **Un seul fichier à modifier** : `config.php`
 - **Aucune modification de code** nécessaire
 - **Sauvegarde facile** de votre configuration
 - **Mise à jour simplifiée** du système
+- **Sécurité renforcée** avec validation automatique
 
 ### 📝 Pour modifier votre configuration :
 
@@ -292,17 +382,54 @@ overlay-lydia-discord/
 
 ## 🆘 Dépannage
 
-### L'overlay ne s'affiche pas :
-- Vérifiez que le serveur PHP est démarré
-- Vérifiez l'URL dans OBS : `http://localhost:8000/overlay-lydia-discord/overlay.php`
+### Diagnostic automatique :
+```bash
+# Vérification complète du système
+php security_check.php
 
-### Le son ne fonctionne pas :
-- Vérifiez que `caisse.mp3` est présent
-- Vérifiez `'actif' => true` dans la section audio de `config.php`
+# Redéploiement en cas de problème
+php deploy.php
+```
 
-### Discord ne fonctionne pas :
-- Vérifiez votre URL de webhook dans `config.php`
-- Vérifiez `'actif' => true` dans la section discord
+### Problèmes courants :
+
+1. **L'overlay ne s'affiche pas** :
+   - Exécutez `php security_check.php` pour diagnostiquer
+   - Vérifiez que `config.php` existe et est configuré
+   - Contrôlez les permissions des fichiers
+   - Consultez `logs/security.log` pour les erreurs
+
+2. **Les notifications Discord ne fonctionnent pas** :
+   - Testez votre webhook dans l'interface d'administration
+   - Vérifiez que l'URL du webhook est correcte
+   - Contrôlez les permissions du bot Discord
+   - Consultez les logs dans `logs/`
+
+3. **Erreur de permissions** :
+   - Exécutez `php deploy.php` pour reconfigurer automatiquement
+   - Vérifiez les permissions avec `php security_check.php`
+   - Assurez-vous que le serveur web peut écrire dans le répertoire
+
+4. **L'interface d'administration est inaccessible** :
+   - Vérifiez que `config.php` existe
+   - Contrôlez le code d'administration dans la configuration
+   - Restaurez une sauvegarde si nécessaire : `php backup.php --list`
+
+5. **Perte de données** :
+   - Listez les sauvegardes : `php backup.php --list`
+   - Restaurez la dernière sauvegarde : `php backup.php --restore=nom_sauvegarde`
+
+### Récupération d'urgence :
+```bash
+# Restaurer la configuration par défaut
+php deploy.php
+
+# Créer une sauvegarde avant intervention
+php backup.php
+
+# Vérifier l'état du système
+php security_check.php
+```
 
 ## 📞 Support
 

@@ -34,8 +34,13 @@ php_value disable_functions "exec,passthru,shell_exec,system,proc_open,popen,cur
     Require all denied
 </Files>
 
+# Le fichier data.json doit être accessible pour l'overlay
+# mais on limite l'accès aux méthodes GET uniquement
 <Files "data.json">
-    Require all denied
+    <RequireAll>
+        Require all granted
+        Require method GET
+    </RequireAll>
 </Files>
 
 <Files "*.log">

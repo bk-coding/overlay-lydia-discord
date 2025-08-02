@@ -68,6 +68,7 @@ Assurez-vous que le fichier `caisse.mp3` est présent dans le dossier pour les e
 overlay-lydia-discord/
 ├── config.example.php  # 📋 Fichier de configuration d'exemple
 ├── config.php          # ⚙️ Configuration centralisée du système (à créer)
+├── generate_password.php # 🔐 Script pour générer un hash sécurisé (optionnel)
 ├── index.php           # 🔧 Interface d'administration web
 ├── overlay.php         # 🎨 Générateur d'overlay HTML
 ├── update.php          # 🔄 Script de mise à jour Lydia
@@ -170,12 +171,41 @@ overlay-lydia-discord/
 ```php
 'admin' => [
     'code_connexion' => 'CHANGEZ_MOI',   // Code de connexion (CHANGEZ-LE ABSOLUMENT !)
+    'utilise_hash' => false,             // true = hash sécurisé (recommandé), false = texte brut
     'duree_session' => 3600,             // Durée de session (1 heure)
     'nom_session' => 'cagnotte_admin',   // Nom de la session
 ],
 ```
 
 > ⚠️ **SÉCURITÉ** : Changez absolument le code de connexion `CHANGEZ_MOI` pour sécuriser votre interface d'administration !
+
+#### 🔐 Sécurisation avancée du mot de passe (Recommandé)
+
+Pour une sécurité maximale, utilisez un hash sécurisé :
+
+1. **Générer un hash sécurisé** :
+   ```bash
+   # Modifiez le mot de passe dans generate_password.php
+   nano generate_password.php
+   
+   # Exécutez le script pour générer le hash
+   php generate_password.php
+   ```
+
+2. **Configurer le hash** :
+   - Copiez le hash généré dans `config.php`
+   - Changez `'utilise_hash' => true`
+   - Supprimez `generate_password.php` après utilisation
+
+3. **Exemple de configuration sécurisée** :
+   ```php
+   'admin' => [
+       'code_connexion' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+       'utilise_hash' => true,
+       'duree_session' => 3600,
+       'nom_session' => 'cagnotte_admin',
+   ],
+   ```
 
 ## 🚀 Utilisation
 

@@ -23,7 +23,23 @@ if (isset($_SESSION[$config['admin']['nom_session']]) &&
 // Traitement de la connexion
 if (isset($_POST['login'])) {
     $code = $_POST['code'] ?? '';
-    if ($code === $config['admin']['code_connexion']) {
+    
+    /**
+     * Vérifie le mot de passe d'administration
+     * Support à la fois l'ancien système (texte brut) et le nouveau (hash sécurisé)
+     */
+    $motDePasseValide = false;
+    
+    // Vérifier si on utilise le système de hash sécurisé
+    if (isset($config['admin']['utilise_hash']) && $config['admin']['utilise_hash'] === true) {
+        // Nouveau système : vérification avec password_verify()
+        $motDePasseValide = password_verify($code, $config['admin']['code_connexion']);
+    } else {
+        // Ancien système : comparaison directe (rétrocompatibilité)
+        $motDePasseValide = ($code === $config['admin']['code_connexion']);
+    }
+    
+    if ($motDePasseValide) {
         $_SESSION[$config['admin']['nom_session']] = time() + $config['admin']['duree_session'];
         $isAuthenticated = true;
     } else {

@@ -82,6 +82,7 @@ return array (
   'admin' => 
   array (
     'code_connexion' => 'CHANGEZ_MOI',   // Code de connexion pour l'interface d'administration (CHANGEZ-LE ABSOLUMENT !)
+    'utilise_hash' => false,             // true = utilise password_hash() (recommandé), false = texte brut (moins sécurisé)
     'duree_session' => 3600,             // Durée de session en secondes (3600 = 1 heure)
     'nom_session' => 'cagnotte_admin',   // Nom de la session (ne pas modifier)
   ),

@@ -9,7 +9,19 @@
  * 2. Modifiez les valeurs ci-dessous selon vos besoins
  * 3. Après modification, aucun autre fichier ne doit être modifié
  * 
- * IMPORTANT : Ne commitez jamais le fichier config.php avec vos vraies données !
+ * FONCTIONNALITÉS DISPONIBLES :
+ * - Overlay de cagnotte en temps réel (overlay.php)
+ * - Interface d'administration web (index.php)
+ * - Notifications Discord automatiques
+ * - Personnalisation complète de l'apparence
+ * - Support audio pour les contributions
+ * 
+ * SÉCURITÉ :
+ * - Changez le code d'administration par défaut
+ * - Ne commitez jamais le fichier config.php avec vos vraies données !
+ * - L'interface d'administration est protégée par session
+ * 
+ * VERSION : 2.0 - Avec interface d'administration
  */
 
 return [
@@ -119,6 +131,19 @@ return [
         'discord_titre_mise_a_jour' => '📊 Montant mis à jour',
         'discord_titre_actualisation' => '🔄 Données actualisées',
         'discord_footer' => 'Cagnotte Twitch',
+    ],
+
+    // ===== CONFIGURATION ADMINISTRATION =====
+    'admin' => [
+        // Code de connexion pour accéder à l'interface d'administration
+        // IMPORTANT : Changez ce code par défaut pour sécuriser votre interface !
+        'code_connexion' => 'admin123',
+        
+        // Durée de session en secondes (3600 = 1 heure)
+        'duree_session' => 3600,
+        
+        // Nom de la session (utilisé pour les cookies)
+        'nom_session' => 'cagnotte_admin',
     ],
 ];
 ?>

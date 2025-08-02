@@ -4,6 +4,12 @@
 
 Ce système d'overlay affiche une barre de progression pour une cagnotte Lydia avec notifications Discord et effets sonores. Toute la configuration est centralisée dans le fichier `config.php` pour faciliter la maintenance.
 
+### ✨ Nouvelles fonctionnalités v2.0 :
+- **Interface d'administration web** : Modifiez votre configuration via une interface graphique
+- **Authentification sécurisée** : Protection par code de connexion et sessions
+- **Configuration en temps réel** : Changements appliqués immédiatement
+- **Interface moderne et responsive** : Compatible mobile et desktop
+
 ## 📋 Prérequis
 
 - **PHP 7.4+** avec les extensions :
@@ -30,12 +36,21 @@ cp config.example.php config.php
 nano config.php  # ou votre éditeur préféré
 ```
 
-### 3. Paramètres à modifier dans config.php
+### 3. Configuration
+
+#### Option A : Interface d'administration web (Recommandée)
+1. Accédez à `http://localhost:8000/index.php`
+2. Entrez le code de connexion (par défaut : `admin123`)
+3. Modifiez vos paramètres via l'interface graphique
+4. Sauvegardez automatiquement
+
+#### Option B : Modification manuelle du fichier config.php
 - **URL Lydia** : Remplacez `VOTRE_ID_CAGNOTTE` par votre vrai ID
 - **Webhook Discord** : Remplacez `VOTRE_WEBHOOK_ID` et `VOTRE_WEBHOOK_TOKEN`
 - **Objectif** : Définissez votre objectif de cagnotte
 - **Apparence** : Personnalisez les couleurs et dimensions selon vos goûts
 - **Texte personnalisé** : Ajoutez un texte au-dessus de la barre (optionnel)
+- **Code d'administration** : Changez le code par défaut pour sécuriser l'accès
 
 ### 4. Démarrage du serveur
 ```bash
@@ -51,6 +66,7 @@ php -S localhost:8000
 overlay-lydia-discord/
 ├── config.example.php   # 📋 Modèle de configuration (à copier)
 ├── config.php          # ⚙️ Configuration personnelle (créé par vous)
+├── index.php            # 🔧 Interface d'administration web
 ├── overlay.php          # 🎨 Générateur d'overlay HTML
 ├── update.php           # 🔄 Script de mise à jour Lydia
 ├── discord.php          # 💬 Système de notifications Discord
@@ -149,14 +165,31 @@ overlay-lydia-discord/
 ],
 ```
 
+#### 7. Configuration Administration
+```php
+'admin' => [
+    'code_connexion' => 'admin123',      // Code de connexion (CHANGEZ-LE !)
+    'duree_session' => 3600,             // Durée de session (1 heure)
+    'nom_session' => 'cagnotte_admin',   // Nom de la session
+],
+```
+
+> ⚠️ **SÉCURITÉ** : Changez immédiatement le code de connexion par défaut !
+
 ## 🚀 Utilisation
 
+### Interface d'administration :
+**URL d'administration** : `http://localhost:8000/index.php`
+- Connectez-vous avec votre code d'administration
+- Modifiez tous les paramètres en temps réel
+- Testez vos modifications instantanément
+
 ### Pour OBS/Streamlabs :
-**URL de l'overlay** : `http://localhost:8000/overlay-lydia-discord/overlay.php`
+**URL de l'overlay** : `http://localhost:8000/overlay.php`
 
 ### Mise à jour automatique :
 - Configurez un cron job pour exécuter `update.php` toutes les minutes
-- Ou appelez manuellement : `http://localhost:8000/overlay-lydia-discord/update.php`
+- Ou appelez manuellement : `http://localhost:8000/update.php`
 
 ## 🔧 Maintenance
 
@@ -167,6 +200,14 @@ overlay-lydia-discord/
 - **Mise à jour simplifiée** du système
 
 ### 📝 Pour modifier votre configuration :
+
+#### Méthode recommandée (Interface web) :
+1. Accédez à `http://localhost:8000/index.php`
+2. Connectez-vous avec votre code d'administration
+3. Modifiez les paramètres via l'interface
+4. Sauvegardez (automatique)
+
+#### Méthode manuelle :
 1. Ouvrez `config.php`
 2. Modifiez les valeurs selon vos besoins
 3. Sauvegardez le fichier

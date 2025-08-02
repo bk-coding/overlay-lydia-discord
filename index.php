@@ -4,270 +4,120 @@
  * Permet de modifier la configuration après authentification
  */
 
-// Protection contre l'accès direct non autorisé
-if (!defined('SECURE_ACCESS')) {
-    define('SECURE_ACCESS', true);
-}
-
-// En-têtes de sécurité
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('X-XSS-Protection: 1; mode=block');
-header('Referrer-Policy: strict-origin-when-cross-origin');
-header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:; font-src \'self\';');
-
-// Limitation des méthodes HTTP
-$allowedMethods = ['GET', 'POST'];
-if (!in_array($_SERVER['REQUEST_METHOD'], $allowedMethods)) {
-    http_response_code(405);
-    header('Allow: ' . implode(', ', $allowedMethods));
-    exit('Méthode non autorisée');
-}
-
-// Protection contre les attaques de timing
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Ajouter un délai minimal pour éviter les attaques de timing
-    usleep(100000); // 100ms
-}
-
-// Inclure le gestionnaire de sécurité
-require_once 'security.php';
+session_start();
 
 // Charger la configuration
 $config = require __DIR__ . '/config.php';
-
-// Initialiser le gestionnaire de sécurité
-$security = new SecurityManager($config);
 
 // Gestion de l'authentification
 $isAuthenticated = false;
 $error = '';
 $success = '';
 
-// Vérifier si l'utilisateur est connecté
-$isAuthenticated = $security->isAuthenticated();
+// Vérifier si l'utilisateur est déjà connecté
+if (isset($_SESSION[$config['admin']['nom_session']]) && 
+    $_SESSION[$config['admin']['nom_session']] > time()) {
+    $isAuthenticated = true;
+}
 
 // Traitement de la connexion
 if (isset($_POST['login'])) {
-    // Vérifier le token CSRF
-    if (!$security->verifyCSRFToken($_POST['csrf_token'] ?? '')) {
-        $error = "Token de sécurité invalide. Veuillez recharger la page.";
+    $code = $_POST['code'] ?? '';
+    if ($code === $config['admin']['code_connexion']) {
+        $_SESSION[$config['admin']['nom_session']] = time() + $config['admin']['duree_session'];
+        $isAuthenticated = true;
     } else {
-        $password = $_POST['code'] ?? '';
-        $result = $security->authenticate($password);
-        
-        if ($result['success']) {
-            $isAuthenticated = true;
-        } else {
-            $error = $result['message'];
-        }
+        $error = 'Code de connexion incorrect';
     }
 }
 
 // Traitement de la déconnexion
 if (isset($_POST['logout'])) {
-    // Vérifier le token CSRF
-    if ($security->verifyCSRFToken($_POST['csrf_token'] ?? '')) {
-        $security->logout();
-    }
+    unset($_SESSION[$config['admin']['nom_session']]);
     $isAuthenticated = false;
 }
 
 // Traitement de la sauvegarde de configuration
 if ($isAuthenticated && isset($_POST['save_config'])) {
-    // Vérifier le token CSRF
-    if (!$security->verifyCSRFToken($_POST['csrf_token'] ?? '')) {
-        $error = "Token de sécurité invalide. Veuillez recharger la page.";
-    } else {
-        try {
-            // Valider et construire le nouveau tableau de configuration
-            $validationErrors = [];
-            
-            // Validation Lydia
-            $lydiaUrl = $security->validateData($_POST['lydia_url'] ?? '', 'url');
-            if (!$lydiaUrl['valid']) {
-                $validationErrors[] = "URL Lydia : " . $lydiaUrl['message'];
-            }
-            
-            $lydiaObjectif = $security->validateData($_POST['lydia_objectif'] ?? '', 'integer', ['min' => 1, 'max' => 1000000]);
-            if (!$lydiaObjectif['valid']) {
-                $validationErrors[] = "Objectif Lydia : " . $lydiaObjectif['message'];
-            }
-            
-            // Validation Discord
-            $discordWebhook = $_POST['discord_webhook_url'] ?? '';
-            if (!empty($discordWebhook)) {
-                $webhookValidation = $security->validateData($discordWebhook, 'url');
-                if (!$webhookValidation['valid'] || !str_contains($discordWebhook, 'discord.com/api/webhooks/')) {
-                    $validationErrors[] = "URL Discord : Doit être une URL de webhook Discord valide";
-                }
-            }
-            
-            // Validation des couleurs
-            $couleurs = ['couleur_debut', 'couleur_fin', 'couleur_bordure', 'couleur_fond', 'couleur_texte'];
-            foreach ($couleurs as $couleur) {
-                $value = $_POST['apparence_' . $couleur] ?? '';
-                $validation = $security->validateData($value, 'color');
-                if (!$validation['valid']) {
-                    $validationErrors[] = "Couleur " . str_replace('_', ' ', $couleur) . " : " . $validation['message'];
-                }
-            }
-            
-            // Validation des dimensions
-            $dimensions = [
-                'largeur' => ['min' => 100, 'max' => 2000],
-                'hauteur' => ['min' => 20, 'max' => 200],
-                'bordure_epaisseur' => ['min' => 0, 'max' => 20],
-                'bordure_rayon' => ['min' => 0, 'max' => 50],
-                'taille_police' => ['min' => 8, 'max' => 72],
-                'poids_police' => ['min' => 100, 'max' => 900],
-                'espacement_texte' => ['min' => 0, 'max' => 50],
-                'marge_horizontale' => ['min' => 0, 'max' => 500],
-                'marge_verticale' => ['min' => 0, 'max' => 500]
-            ];
-            
-            foreach ($dimensions as $dim => $range) {
-                $value = $_POST['apparence_' . $dim] ?? '';
-                $validation = $security->validateData($value, 'integer', $range);
-                if (!$validation['valid']) {
-                    $validationErrors[] = ucfirst(str_replace('_', ' ', $dim)) . " : " . $validation['message'];
-                }
-            }
-            
-            // Validation des positions
-            $positionH = $security->validateData($_POST['apparence_position_horizontale'] ?? '', 'enum', ['values' => ['left', 'center', 'right']]);
-            if (!$positionH['valid']) {
-                $validationErrors[] = "Position horizontale : " . $positionH['message'];
-            }
-            
-            $positionV = $security->validateData($_POST['apparence_position_verticale'] ?? '', 'enum', ['values' => ['top', 'center', 'bottom']]);
-            if (!$positionV['valid']) {
-                $validationErrors[] = "Position verticale : " . $positionV['message'];
-            }
-            
-            // Validation audio
-            $audioVolume = $security->validateData($_POST['audio_volume'] ?? '', 'float', ['min' => 0.0, 'max' => 1.0]);
-            if (!$audioVolume['valid']) {
-                $validationErrors[] = "Volume audio : " . $audioVolume['message'];
-            }
-            
-            $audioFichier = $security->validateData($_POST['audio_fichier'] ?? '', 'filename');
-            if (!$audioFichier['valid']) {
-                $validationErrors[] = "Fichier audio : " . $audioFichier['message'];
-            }
-            
-            // Validation technique
-            $intervalleValidation = $security->validateData($_POST['technique_intervalle_maj'] ?? '', 'integer', ['min' => 5, 'max' => 300]);
-            if (!$intervalleValidation['valid']) {
-                $validationErrors[] = "Intervalle de mise à jour : " . $intervalleValidation['message'];
-            }
-            
-            $timeoutValidation = $security->validateData($_POST['technique_timeout_curl'] ?? '', 'integer', ['min' => 5, 'max' => 60]);
-            if (!$timeoutValidation['valid']) {
-                $validationErrors[] = "Timeout cURL : " . $timeoutValidation['message'];
-            }
-            
-            // Validation des chaînes de caractères
-            $strings = ['texte_personnalise', 'chargement', 'erreur', 'format_montant', 'discord_titre_contribution', 'discord_titre_mise_a_jour', 'discord_titre_actualisation', 'discord_footer', 'user_agent'];
-            foreach ($strings as $string) {
-                $field = str_contains($string, 'discord_') || in_array($string, ['chargement', 'erreur', 'format_montant']) ? 'messages_' . $string : 
-                        ($string === 'texte_personnalise' ? 'apparence_' . $string : 'technique_' . $string);
-                $value = $_POST[$field] ?? '';
-                $validation = $security->validateData($value, 'string', ['max_length' => 500]);
-                if (!$validation['valid']) {
-                    $validationErrors[] = ucfirst(str_replace('_', ' ', $string)) . " : " . $validation['message'];
-                }
-            }
-            
-            // Si des erreurs de validation existent, les afficher
-            if (!empty($validationErrors)) {
-                $error = "Erreurs de validation :\n• " . implode("\n• ", $validationErrors);
-            } else {
-                // Construire le nouveau tableau de configuration avec les données validées
-                $newConfig = [
-                    'lydia' => [
-                        'url' => $lydiaUrl['value'],
-                        'objectif' => $lydiaObjectif['value'],
-                    ],
-                    'discord' => [
-                        'webhook_url' => $discordWebhook,
-                        'actif' => isset($_POST['discord_actif']),
-                    ],
-                    'apparence' => [
-                        'couleur_debut' => $_POST['apparence_couleur_debut'],
-                        'couleur_fin' => $_POST['apparence_couleur_fin'],
-                        'couleur_bordure' => $_POST['apparence_couleur_bordure'],
-                        'couleur_fond' => $_POST['apparence_couleur_fond'],
-                        'couleur_texte' => $_POST['apparence_couleur_texte'],
-                        'largeur' => (int)$_POST['apparence_largeur'],
-                        'hauteur' => (int)$_POST['apparence_hauteur'],
-                        'bordure_epaisseur' => (int)$_POST['apparence_bordure_epaisseur'],
-                        'bordure_rayon' => (int)$_POST['apparence_bordure_rayon'],
-                        'taille_police' => (int)$_POST['apparence_taille_police'],
-                        'poids_police' => (int)$_POST['apparence_poids_police'],
-                        'texte_personnalise' => $_POST['apparence_texte_personnalise'],
-                        'espacement_texte' => (int)$_POST['apparence_espacement_texte'],
-                        'position_horizontale' => $_POST['apparence_position_horizontale'],
-                        'position_verticale' => $_POST['apparence_position_verticale'],
-                        'marge_horizontale' => (int)$_POST['apparence_marge_horizontale'],
-                        'marge_verticale' => (int)$_POST['apparence_marge_verticale'],
-                    ],
-                    'audio' => [
-                        'fichier' => $_POST['audio_fichier'],
-                        'volume' => (float)$_POST['audio_volume'],
-                        'actif' => isset($_POST['audio_actif']),
-                        'formats_supportes' => $config['audio']['formats_supportes'],
-                    ],
-                    'technique' => [
-                        'intervalle_maj' => (int)$_POST['technique_intervalle_maj'],
-                        'timeout_curl' => (int)$_POST['technique_timeout_curl'],
-                        'duree_transition' => (int)($_POST['technique_duree_transition'] ?? $config['technique']['duree_transition']),
-                        'fichier_donnees' => $_POST['technique_fichier_donnees'] ?? $config['technique']['fichier_donnees'],
-                        'user_agent' => $_POST['technique_user_agent'],
-                    ],
-                    'messages' => [
-                        'chargement' => $_POST['messages_chargement'],
-                        'erreur' => $_POST['messages_erreur'],
-                        'format_montant' => $_POST['messages_format_montant'],
-                        'discord_titre_contribution' => $_POST['messages_discord_titre_contribution'],
-                        'discord_titre_mise_a_jour' => $_POST['messages_discord_titre_mise_a_jour'],
-                        'discord_titre_actualisation' => $_POST['messages_discord_titre_actualisation'],
-                        'discord_footer' => $_POST['messages_discord_footer'],
-                    ],
-                    'admin' => $config['admin'], // Garder la configuration admin existante
-                ];
+    try {
+        // Construire le nouveau tableau de configuration
+        $newConfig = [
+            'lydia' => [
+                'url' => $_POST['lydia_url'] ?? $config['lydia']['url'],
+                'objectif' => (int)($_POST['lydia_objectif'] ?? $config['lydia']['objectif']),
+            ],
+            'discord' => [
+                'webhook_url' => $_POST['discord_webhook_url'] ?? $config['discord']['webhook_url'],
+                'actif' => isset($_POST['discord_actif']),
+            ],
+            'apparence' => [
+                'couleur_debut' => $_POST['apparence_couleur_debut'] ?? $config['apparence']['couleur_debut'],
+                'couleur_fin' => $_POST['apparence_couleur_fin'] ?? $config['apparence']['couleur_fin'],
+                'couleur_bordure' => $_POST['apparence_couleur_bordure'] ?? $config['apparence']['couleur_bordure'],
+                'couleur_fond' => $_POST['apparence_couleur_fond'] ?? $config['apparence']['couleur_fond'],
+                'couleur_texte' => $_POST['apparence_couleur_texte'] ?? $config['apparence']['couleur_texte'],
+                'largeur' => (int)($_POST['apparence_largeur'] ?? $config['apparence']['largeur']),
+                'hauteur' => (int)($_POST['apparence_hauteur'] ?? $config['apparence']['hauteur']),
+                'bordure_epaisseur' => (int)($_POST['apparence_bordure_epaisseur'] ?? $config['apparence']['bordure_epaisseur']),
+                'bordure_rayon' => (int)($_POST['apparence_bordure_rayon'] ?? $config['apparence']['bordure_rayon']),
+                'taille_police' => (int)($_POST['apparence_taille_police'] ?? $config['apparence']['taille_police']),
+                'poids_police' => (int)($_POST['apparence_poids_police'] ?? $config['apparence']['poids_police']),
+                'texte_personnalise' => $_POST['apparence_texte_personnalise'] ?? $config['apparence']['texte_personnalise'],
+                'espacement_texte' => (int)($_POST['apparence_espacement_texte'] ?? $config['apparence']['espacement_texte']),
+                'position_horizontale' => $_POST['apparence_position_horizontale'] ?? $config['apparence']['position_horizontale'],
+                'position_verticale' => $_POST['apparence_position_verticale'] ?? $config['apparence']['position_verticale'],
+                'marge_horizontale' => (int)($_POST['apparence_marge_horizontale'] ?? $config['apparence']['marge_horizontale']),
+                'marge_verticale' => (int)($_POST['apparence_marge_verticale'] ?? $config['apparence']['marge_verticale']),
+            ],
+            'audio' => [
+                'fichier' => $_POST['audio_fichier'] ?? $config['audio']['fichier'],
+                'volume' => (float)($_POST['audio_volume'] ?? $config['audio']['volume']),
+                'actif' => isset($_POST['audio_actif']),
+                'formats_supportes' => $config['audio']['formats_supportes'], // Garder les formats existants
+            ],
+            'technique' => [
+                'intervalle_maj' => (int)($_POST['technique_intervalle_maj'] ?? $config['technique']['intervalle_maj']),
+                'timeout_curl' => (int)($_POST['technique_timeout_curl'] ?? $config['technique']['timeout_curl']),
+                'duree_transition' => (int)($_POST['technique_duree_transition'] ?? $config['technique']['duree_transition']),
+                'fichier_donnees' => $_POST['technique_fichier_donnees'] ?? $config['technique']['fichier_donnees'],
+                'user_agent' => $_POST['technique_user_agent'] ?? $config['technique']['user_agent'],
+            ],
+            'messages' => [
+                'chargement' => $_POST['messages_chargement'] ?? $config['messages']['chargement'],
+                'erreur' => $_POST['messages_erreur'] ?? $config['messages']['erreur'],
+                'format_montant' => $_POST['messages_format_montant'] ?? $config['messages']['format_montant'],
+                'discord_titre_contribution' => $_POST['messages_discord_titre_contribution'] ?? $config['messages']['discord_titre_contribution'],
+                'discord_titre_mise_a_jour' => $_POST['messages_discord_titre_mise_a_jour'] ?? $config['messages']['discord_titre_mise_a_jour'],
+                'discord_titre_actualisation' => $_POST['messages_discord_titre_actualisation'] ?? $config['messages']['discord_titre_actualisation'],
+                'discord_footer' => $_POST['messages_discord_footer'] ?? $config['messages']['discord_footer'],
+            ],
+            'admin' => $config['admin'], // Garder la configuration admin existante
+        ];
 
-                // Générer le contenu PHP
-                $configContent = "<?php\n";
-                $configContent .= "/**\n";
-                $configContent .= " * Configuration centralisée du système d'overlay de cagnotte\n";
-                $configContent .= " * \n";
-                $configContent .= " * Ce fichier contient toutes les données personnalisables du système.\n";
-                $configContent .= " * Modifiez uniquement les valeurs ci-dessous selon vos besoins.\n";
-                $configContent .= " * \n";
-                $configContent .= " * IMPORTANT : Après modification, aucun autre fichier ne doit être modifié.\n";
-                $configContent .= " * Dernière modification : " . date('Y-m-d H:i:s') . "\n";
-                $configContent .= " * Sécurité : Validation des données activée\n";
-                $configContent .= " */\n\n";
-                $configContent .= "return " . var_export($newConfig, true) . ";\n";
-                $configContent .= "?>";
+        // Générer le contenu PHP
+        $configContent = "<?php\n";
+        $configContent .= "/**\n";
+        $configContent .= " * Configuration centralisée du système d'overlay de cagnotte\n";
+        $configContent .= " * \n";
+        $configContent .= " * Ce fichier contient toutes les données personnalisables du système.\n";
+        $configContent .= " * Modifiez uniquement les valeurs ci-dessous selon vos besoins.\n";
+        $configContent .= " * \n";
+        $configContent .= " * IMPORTANT : Après modification, aucun autre fichier ne doit être modifié.\n";
+        $configContent .= " * Dernière modification : " . date('Y-m-d H:i:s') . "\n";
+        $configContent .= " */\n\n";
+        $configContent .= "return " . var_export($newConfig, true) . ";\n";
+        $configContent .= "?>";
 
-                // Sauvegarder le fichier
-                if (file_put_contents(__DIR__ . '/config.php', $configContent) !== false) {
-                    $success = 'Configuration sauvegardée avec succès !';
-                    // Recharger la configuration
-                    $config = $newConfig;
-                    
-                    // Logger l'événement de sécurité
-                    $security->logSecurityEvent('config_updated', 'Configuration mise à jour via interface web');
-                } else {
-                    $error = 'Erreur lors de la sauvegarde de la configuration';
-                }
-            }
-        } catch (Exception $e) {
-            $error = 'Erreur : ' . $e->getMessage();
-            $security->logSecurityEvent('config_error', 'Erreur lors de la sauvegarde: ' . $e->getMessage());
+        // Sauvegarder le fichier
+        if (file_put_contents(__DIR__ . '/config.php', $configContent) !== false) {
+            $success = 'Configuration sauvegardée avec succès !';
+            // Recharger la configuration
+            $config = $newConfig;
+        } else {
+            $error = 'Erreur lors de la sauvegarde de la configuration';
         }
+    } catch (Exception $e) {
+        $error = 'Erreur : ' . $e->getMessage();
     }
 }
 ?>
@@ -493,7 +343,6 @@ if ($isAuthenticated && isset($_POST['save_config'])) {
                     <?php endif; ?>
 
                     <form method="POST">
-                        <input type="hidden" name="csrf_token" value="<?= $security->generateCSRFToken() ?>">
                         <div class="form-group">
                             <label for="code">Code de connexion</label>
                             <input type="password" id="code" name="code" required placeholder="Entrez votre code">
@@ -504,7 +353,6 @@ if ($isAuthenticated && isset($_POST['save_config'])) {
             <?php else: ?>
                 <!-- Interface d'administration -->
                 <form method="POST" class="logout-btn">
-                    <input type="hidden" name="csrf_token" value="<?= $security->generateCSRFToken() ?>">
                     <button type="submit" name="logout" class="btn btn-danger">Déconnexion</button>
                 </form>
 
@@ -517,7 +365,6 @@ if ($isAuthenticated && isset($_POST['save_config'])) {
                 <?php endif; ?>
 
                 <form method="POST">
-                    <input type="hidden" name="csrf_token" value="<?= $security->generateCSRFToken() ?>">
                     <div class="config-sections">
                         <!-- Configuration Lydia -->
                         <div class="config-section">

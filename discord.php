@@ -4,29 +4,14 @@
  * Envoie des notifications à chaque modification du montant de la cagnotte
  */
 
-// Protection contre l'accès direct non autorisé
-if (!defined('SECURE_ACCESS') && basename(__FILE__) != basename($_SERVER['SCRIPT_NAME'])) {
-    http_response_code(403);
-    exit('Accès non autorisé');
-}
-
-// En-têtes de sécurité
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('X-XSS-Protection: 1; mode=block');
-
 // Charger la configuration seulement si elle n'est pas déjà disponible
 if (!isset($config) || !is_array($config)) {
     $config = require __DIR__ . '/config.php';
 }
 
-// Charger le gestionnaire de sécurité
-require_once __DIR__ . '/security.php';
-
 class DiscordWebhook {
     private $webhookUrl;
     private $dataFile;
-    private $security;
     
     /**
      * Constructeur
@@ -34,24 +19,8 @@ class DiscordWebhook {
      * @param string $dataFile Chemin vers le fichier data.json
      */
     public function __construct($webhookUrl, $dataFile = 'data.json') {
-        // Validation de l'URL du webhook
-        if (!filter_var($webhookUrl, FILTER_VALIDATE_URL) || 
-            !preg_match('/^https:\/\/discord(app)?\.com\/api\/webhooks\//', $webhookUrl)) {
-            throw new InvalidArgumentException('URL de webhook Discord invalide');
-        }
-        
-        // Validation du chemin du fichier
-        $realPath = realpath(dirname($dataFile));
-        if ($realPath === false || !is_writable($realPath)) {
-            throw new InvalidArgumentException('Répertoire de données inaccessible ou non inscriptible');
-        }
-        
         $this->webhookUrl = $webhookUrl;
         $this->dataFile = $dataFile;
-        
-        // Initialiser le gestionnaire de sécurité
-        global $config;
-        $this->security = new SecurityManager($config);
     }
     
     /**
@@ -60,53 +29,22 @@ class DiscordWebhook {
      * @return bool Succès de l'envoi
      */
     private function envoyerMessage($data) {
-        // Validation des données
-        if (!is_array($data) || empty($data)) {
-            $this->security->logSecurityEvent('discord_invalid_data', ['error' => 'Données invalides pour Discord']);
-            return false;
-        }
-        
-        // Limitation de taux pour éviter le spam
-        $clientIP = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-        if (!$this->security->checkRateLimit('discord_' . $clientIP, 10, 60)) {
-            $this->security->logSecurityEvent('discord_rate_limit', ['ip' => $clientIP]);
-            return false;
-        }
-        
         $ch = curl_init();
         
         curl_setopt($ch, CURLOPT_URL, $this->webhookUrl);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'User-Agent: SecureDiscordBot/1.0'
+            'Content-Type: application/json'
         ]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 0);
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
         curl_close($ch);
         
-        // Logging des erreurs
-        if ($response === false || !empty($error)) {
-            $this->security->logSecurityEvent('discord_curl_error', ['error' => $error]);
-            return false;
-        }
-        
-        if ($httpCode < 200 || $httpCode >= 300) {
-            $this->security->logSecurityEvent('discord_http_error', ['code' => $httpCode, 'response' => $response]);
-            return false;
-        }
-        
-        return true;
+        return $httpCode >= 200 && $httpCode < 300;
     }
     
     /**
@@ -118,23 +56,6 @@ class DiscordWebhook {
      */
     private function creerEmbed($ancienMontant, $nouveauMontant, $objectif) {
         global $config;
-        
-        // Validation des paramètres
-        if (!is_numeric($ancienMontant) || !is_numeric($nouveauMontant) || !is_numeric($objectif)) {
-            throw new InvalidArgumentException('Les montants doivent être numériques');
-        }
-        
-        if ($objectif <= 0) {
-            throw new InvalidArgumentException('L\'objectif doit être supérieur à zéro');
-        }
-        
-        if ($nouveauMontant < 0) {
-            throw new InvalidArgumentException('Le nouveau montant ne peut pas être négatif');
-        }
-        
-        $ancienMontant = (float)$ancienMontant;
-        $nouveauMontant = (float)$nouveauMontant;
-        $objectif = (float)$objectif;
         
         $difference = $nouveauMontant - $ancienMontant;
         $pourcentage = round(($nouveauMontant / $objectif) * 100, 1);

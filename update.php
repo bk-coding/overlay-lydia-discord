@@ -3,57 +3,18 @@
  * Script de mise à jour de la cagnotte Lydia
  * Récupère le montant depuis la page Lydia et met à jour data.json
  * Envoie des notifications Discord en cas de changement
- * Version 2.0 - Améliorations de sécurité
  */
 
 // Suppression de l'affichage des erreurs pour éviter les problèmes avec les headers JSON
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', 0);
 
-// Headers de sécurité
-header('Content-Type: application/json; charset=utf-8');
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('X-XSS-Protection: 1; mode=block');
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
 
-// Limitation des méthodes HTTP autorisées
-if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Méthode non autorisée', 'success' => false]);
-    exit;
-}
-
-// Chargement de la configuration et du système de sécurité
+// Chargement de la configuration centralisée
 $config = require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/security.php';
-
-// Initialisation du gestionnaire de sécurité
-$security = new SecurityManager($config);
-
-// Vérification de l'authentification par token (optionnel pour les appels automatiques)
-$requireAuth = isset($_GET['require_auth']) && $_GET['require_auth'] === '1';
-if ($requireAuth) {
-    $token = $_GET['token'] ?? $_POST['token'] ?? '';
-    if (empty($token) || !$security->verifyAPIToken($token)) {
-        $security->logSecurityEvent('update_unauthorized_access', [
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
-            'token_provided' => !empty($token)
-        ]);
-        
-        http_response_code(401);
-        echo json_encode(['error' => 'Token d\'authentification requis', 'success' => false]);
-        exit;
-    }
-}
-
-// Protection contre les attaques par déni de service
-$rateLimitKey = 'update_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
-if (!$security->checkRateLimit($rateLimitKey, 10, 60)) { // 10 requêtes par minute
-    http_response_code(429);
-    echo json_encode(['error' => 'Trop de requêtes, veuillez patienter', 'success' => false]);
-    exit;
-}
 
 // Vérification que la configuration est bien chargée
 if (!$config || !is_array($config)) {

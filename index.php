@@ -578,15 +578,15 @@ if ($isAuthenticated && isset($_POST['save_config'])) {
                             🔄 Tester la mise à jour
                         </a>
                         |
-                        <a href="test_discord.php" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                        <a href="test_discord.php" target="_self" style="color: #667eea; text-decoration: none; font-weight: 600;">
                             💬 Tester Discord
                         </a>
                         |
-                        <a href="test_twitch.php" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                        <a href="test_twitch.php" target="_self" style="color: #667eea; text-decoration: none; font-weight: 600;">
                             💜 Tester Twitch
                         </a>
                         |
-                        <a href="test_contribution.php" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                        <a href="test_contribution.php" target="_self" style="color: #667eea; text-decoration: none; font-weight: 600;">
                             🧪 Test complet
                         </a>
                     </p>

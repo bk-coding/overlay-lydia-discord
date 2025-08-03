@@ -26,7 +26,7 @@ return array (
     'access_token' => 'VOTRE_ACCESS_TOKEN',  // Token d'accès OAuth du bot
     'broadcaster_id' => 'VOTRE_BROADCASTER_ID',  // ID du streamer (votre ID utilisateur)
     'bot_user_id' => 'VOTRE_BOT_USER_ID',        // ID utilisateur du bot
-    'message_contribution' => '🎉 Merci pour la contribution de {contribution} ! On est maintenant à {total}€ sur {objectif}€ ({pourcentage}%) !',  // Message lors d'une contribution
+    'message_contribution' => '🎉 Merci pour la contribution de {contribution} ! On est maintenant à {montant_total}€ sur {objectif}€ ({pourcentage}%) !',  // Message lors d'une contribution
     'message_test' => '🤖 Test du bot de cagnotte - Tout fonctionne !',  // Message de test
   ),
   'apparence' => 

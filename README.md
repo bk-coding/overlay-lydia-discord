@@ -9,17 +9,20 @@ Ce système d'overlay affiche une barre de progression pour une cagnotte Lydia a
 - **Authentification sécurisée** : Protection par code de connexion et sessions
 - **Configuration centralisée** : Tous les paramètres dans un seul fichier
 - **Notifications Discord** : Alertes automatiques lors des contributions
+- **Notifications Twitch** : Messages automatiques dans le chat Twitch lors des contributions
 - **Effets sonores** : Son de caisse enregistreuse lors des dons
 - **Personnalisation complète** : Couleurs, position, texte personnalisable
+- **Scripts de test** : Outils pour tester les configurations et simuler des contributions
 
 ## 📋 Prérequis
 
 - **PHP 7.4+** avec les extensions :
-  - `curl` (pour les requêtes Lydia)
+  - `curl` (pour les requêtes Lydia et Twitch)
   - `json` (pour le traitement des données)
 - **Serveur web** (Apache, Nginx, ou serveur PHP intégré)
 - **Compte Lydia** avec une cagnotte active
-- **Webhook Discord** (optionnel, pour les notifications)
+- **Webhook Discord** (optionnel, pour les notifications Discord)
+- **Application Twitch** (optionnel, pour les notifications Twitch chat)
 
 ## 🚀 Installation
 
@@ -282,12 +285,26 @@ Pour une sécurité maximale, utilisez un hash sécurisé :
 - Modifiez tous les paramètres en temps réel
 - Testez vos modifications instantanément
 
+#### Liens utiles disponibles dans l'interface :
+- **🎨 Voir l'overlay** : Aperçu direct de votre overlay
+- **🔄 Forcer la mise à jour** : Actualisation manuelle des données Lydia
+- **💬 Tester Discord** : Envoi d'un message de test sur Discord
+- **💜 Tester Twitch** : Envoi d'un message de test sur le chat Twitch
+- **🧪 Test complet** : Simulation d'une contribution avec notifications complètes
+
 ### Pour OBS/Streamlabs :
 **URL de l'overlay** : `http://votre-serveur/overlay-lydia-discord/overlay.php`
 
 ### Mise à jour automatique :
 - Configurez un cron job pour exécuter `update.php` toutes les minutes
 - Ou appelez manuellement : `http://votre-serveur/overlay-lydia-discord/update.php`
+
+#### Fonctionnement en production :
+Le système détecte automatiquement les nouvelles contributions et envoie :
+- **Notification Discord** : Embed avec détails de la contribution (si configuré)
+- **Message Twitch** : Message automatique dans le chat (si configuré)
+- **Mise à jour overlay** : Actualisation en temps réel de la barre de progression
+- **Effet sonore** : Son de caisse enregistreuse (si activé)
 
 ## 🔧 Maintenance
 
@@ -391,10 +408,13 @@ Pour une sécurité maximale, utilisez un hash sécurisé :
    - Vérifiez la réponse JSON pour les erreurs
 
 5. **Problèmes Twitch** :
-   - Vérifiez que votre Access Token n'est pas expiré
-   - Assurez-vous que le bot a les permissions `user:write:chat`
-   - Vérifiez que le Bot User ID correspond bien au compte du bot
-   - Le bot doit être modérateur de votre chaîne pour envoyer des messages
+   - **Token expiré** : Vérifiez que votre Access Token n'est pas expiré (durée ~60 jours)
+   - **Permissions insuffisantes** : Assurez-vous que le bot a les permissions `user:write:chat`
+   - **IDs incorrects** : Vérifiez que le Bot User ID et Broadcaster ID correspondent aux bons comptes
+   - **Erreur 401** : Le token est invalide ou expiré, régénérez-le
+   - **Erreur 403** : Le bot n'a pas les permissions nécessaires
+   - **Messages non envoyés** : Le bot doit être connecté au chat (pas besoin d'être modérateur)
+   - **Test via interface** : Utilisez le lien "💜 Tester Twitch" dans l'interface d'administration
 
 ### Interface d'administration
 
@@ -406,3 +426,11 @@ Si vous ne pouvez pas accéder à l'interface d'administration :
 ## 📞 Support
 
 Pour toute question ou problème, vérifiez d'abord que votre configuration dans `config.php` est correcte. La plupart des problèmes viennent d'une mauvaise configuration de ce fichier.
+
+### Outils de diagnostic disponibles :
+- **Interface d'administration** : Testez chaque fonctionnalité individuellement
+- **Scripts de test** : `test_twitch.php` et `test_contribution.php`
+- **Logs d'erreur** : Consultez les logs de votre serveur web
+- **Console navigateur** : Vérifiez les erreurs JavaScript dans l'overlay
+
+Le système est conçu pour être robuste et informatif en cas d'erreur. Utilisez les outils de test intégrés pour diagnostiquer rapidement les problèmes de configuration.

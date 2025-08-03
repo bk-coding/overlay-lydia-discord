@@ -66,6 +66,15 @@ if ($isAuthenticated && isset($_POST['save_config'])) {
                 'webhook_url' => $_POST['discord_webhook_url'] ?? $config['discord']['webhook_url'],
                 'actif' => isset($_POST['discord_actif']),
             ],
+            'twitch' => [
+                'actif' => isset($_POST['twitch_actif']),
+                'client_id' => $_POST['twitch_client_id'] ?? $config['twitch']['client_id'],
+                'access_token' => $_POST['twitch_access_token'] ?? $config['twitch']['access_token'],
+                'broadcaster_id' => $_POST['twitch_broadcaster_id'] ?? $config['twitch']['broadcaster_id'],
+                'bot_user_id' => $_POST['twitch_bot_user_id'] ?? $config['twitch']['bot_user_id'],
+                'message_contribution' => $_POST['twitch_message_contribution'] ?? $config['twitch']['message_contribution'],
+                'message_test' => $_POST['twitch_message_test'] ?? $config['twitch']['message_test'],
+            ],
             'apparence' => [
                 'couleur_debut' => $_POST['apparence_couleur_debut'] ?? $config['apparence']['couleur_debut'],
                 'couleur_fin' => $_POST['apparence_couleur_fin'] ?? $config['apparence']['couleur_fin'],
@@ -412,6 +421,45 @@ if ($isAuthenticated && isset($_POST['save_config'])) {
                             </div>
                         </div>
 
+                        <!-- Configuration Twitch -->
+                        <div class="config-section">
+                            <h3>💜 Configuration Twitch</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="twitch_client_id">Client ID</label>
+                                    <input type="text" id="twitch_client_id" name="twitch_client_id" value="<?= htmlspecialchars($config['twitch']['client_id']) ?>" placeholder="Votre Client ID Twitch">
+                                </div>
+                                <div class="form-group">
+                                    <label for="twitch_access_token">Access Token</label>
+                                    <input type="password" id="twitch_access_token" name="twitch_access_token" value="<?= htmlspecialchars($config['twitch']['access_token']) ?>" placeholder="oauth:votre_token">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="twitch_broadcaster_id">ID du Broadcaster</label>
+                                    <input type="text" id="twitch_broadcaster_id" name="twitch_broadcaster_id" value="<?= htmlspecialchars($config['twitch']['broadcaster_id']) ?>" placeholder="ID de votre chaîne">
+                                </div>
+                                <div class="form-group">
+                                    <label for="twitch_bot_user_id">ID du Bot</label>
+                                    <input type="text" id="twitch_bot_user_id" name="twitch_bot_user_id" value="<?= htmlspecialchars($config['twitch']['bot_user_id']) ?>" placeholder="ID de votre bot">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="twitch_message_contribution">Message de contribution</label>
+                                    <input type="text" id="twitch_message_contribution" name="twitch_message_contribution" value="<?= htmlspecialchars($config['twitch']['message_contribution']) ?>" placeholder="Merci {montant}€ ! Objectif: {pourcentage}%">
+                                </div>
+                                <div class="form-group">
+                                    <label for="twitch_message_test">Message de test</label>
+                                    <input type="text" id="twitch_message_test" name="twitch_message_test" value="<?= htmlspecialchars($config['twitch']['message_test']) ?>" placeholder="Test de configuration Twitch">
+                                </div>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="twitch_actif" name="twitch_actif" <?= $config['twitch']['actif'] ? 'checked' : '' ?>>
+                                <label for="twitch_actif">Activer les notifications Twitch</label>
+                            </div>
+                        </div>
+
                         <!-- Configuration Apparence -->
                         <div class="config-section">
                             <h3>🎨 Configuration Apparence</h3>
@@ -528,6 +576,14 @@ if ($isAuthenticated && isset($_POST['save_config'])) {
                         |
                         <a href="update.php" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 600;">
                             🔄 Tester la mise à jour
+                        </a>
+                        |
+                        <a href="test_twitch.php" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                            💜 Tester Twitch
+                        </a>
+                        |
+                        <a href="test_contribution.php" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                            🧪 Test complet
                         </a>
                     </p>
                 </div>

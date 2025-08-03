@@ -73,6 +73,9 @@ overlay-lydia-discord/
 ├── overlay.php         # 🎨 Générateur d'overlay HTML
 ├── update.php          # 🔄 Script de mise à jour Lydia
 ├── discord.php         # 💬 Système de notifications Discord
+├── twitch.php          # 💬 Notifications Twitch Chat
+├── test_contribution.php # 🧪 Script de test complet des notifications
+├── test_twitch.php     # 🧪 Script de test pour Twitch (optionnel)
 ├── data.json           # 📊 Données de la cagnotte (généré automatiquement)
 ├── caisse.mp3          # 🔊 Son de contribution
 └── README.md           # 📖 Documentation du système
@@ -98,7 +101,22 @@ overlay-lydia-discord/
 ],
 ```
 
-#### 3. Configuration Visuelle
+#### 3. Configuration Twitch (Optionnel)
+```php
+'twitch' => [
+    'actif' => false,                    // true pour activer les messages Twitch
+    'client_id' => 'VOTRE_CLIENT_ID',    // Client ID de votre application Twitch
+    'access_token' => 'VOTRE_ACCESS_TOKEN',  // Token d'accès OAuth du bot
+    'broadcaster_id' => 'VOTRE_BROADCASTER_ID',  // Votre ID utilisateur Twitch
+    'bot_user_id' => 'VOTRE_BOT_USER_ID',        // ID utilisateur du bot
+    'message_contribution' => '🎉 Merci pour la contribution de {contribution} ! On est maintenant à {total}€ sur {objectif}€ ({pourcentage}%) !',
+    'message_test' => '🤖 Test du bot de cagnotte - Tout fonctionne !',
+],
+```
+
+> 📋 **Configuration Twitch** : Pour configurer Twitch, vous devez créer une application sur [dev.twitch.tv](https://dev.twitch.tv/console/apps) et obtenir un token OAuth avec les permissions `user:write:chat`.
+
+#### 4. Configuration Visuelle
 ```php
 'apparence' => [
     // Couleurs de la barre de progression (dégradé)
@@ -130,7 +148,7 @@ overlay-lydia-discord/
 ],
 ```
 
-#### 4. Configuration Audio
+#### 5. Configuration Audio
 ```php
 'audio' => [
     'fichier' => 'caisse.mp3',  // Nom du fichier audio
@@ -144,7 +162,7 @@ overlay-lydia-discord/
 ],
 ```
 
-#### 5. Configuration Technique
+#### 6. Configuration Technique
 ```php
 'technique' => [
     'intervalle_maj' => 60000,       // Intervalle de mise à jour (ms)
@@ -154,7 +172,7 @@ overlay-lydia-discord/
 ],
 ```
 
-#### 6. Messages Personnalisables
+#### 7. Messages Personnalisables
 ```php
 'messages' => [
     'chargement' => 'Chargement...',
@@ -167,7 +185,7 @@ overlay-lydia-discord/
 ],
 ```
 
-#### 7. Configuration Administration
+#### 8. Configuration Administration
 ```php
 'admin' => [
     'code_connexion' => 'CHANGEZ_MOI',   // Code de connexion (CHANGEZ-LE ABSOLUMENT !)
@@ -288,26 +306,53 @@ Pour une sécurité maximale, utilisez un hash sécurisé :
 'espacement_texte' => 15,  // Plus d'espace entre le texte et la barre
 ```
 
-## 🆘 Dépannage
+## 🧪 Tests et Dépannage
 
-### L'overlay ne s'affiche pas :
-- Vérifiez que le serveur PHP est démarré
-- Vérifiez l'URL dans OBS : `http://votre-serveur/overlay-lydia-discord/overlay.php`
-- Vérifiez que tous les fichiers sont présents dans le dossier
+### Tests de configuration
 
-### Le son ne fonctionne pas :
-- Vérifiez que `caisse.mp3` est présent dans le dossier
-- Vérifiez `'actif' => true` dans la section audio de `config.php`
-- Vérifiez le volume dans la configuration
+1. **Test Twitch** (si configuré) :
+   ```bash
+   php test_twitch.php
+   ```
+   Ce script vérifie la configuration Twitch et peut envoyer un message de test.
 
-### Discord ne fonctionne pas :
-- Vérifiez votre URL de webhook dans `config.php`
-- Vérifiez `'actif' => true` dans la section discord
-- Testez votre webhook Discord directement
+2. **Test de contribution simulée** :
+   ```bash
+   php test_contribution.php
+   ```
+   Ce script simule une contribution à la cagnotte et teste les notifications sur Twitch et Discord.
 
-### L'interface d'administration ne fonctionne pas :
-- Vérifiez le code de connexion dans `config.php`
-- Vérifiez que PHP est correctement configuré sur votre serveur
+### Problèmes courants
+
+1. **L'overlay ne s'affiche pas** :
+   - Vérifiez l'URL : `http://votre-serveur/overlay-lydia-discord/overlay.php`
+   - Vérifiez que `data.json` existe et contient des données valides
+   - Consultez la console du navigateur pour les erreurs JavaScript
+
+2. **Fichiers manquants** :
+   - Assurez-vous que `config.php` existe (copié depuis `config.example.php`)
+   - Vérifiez que `caisse.mp3` est présent dans le dossier
+
+3. **Problème de volume audio** :
+   - Ajustez le paramètre `volume` dans la configuration (0.0 à 1.0)
+   - Vérifiez que le navigateur autorise la lecture audio automatique
+
+4. **Test du webhook Discord** :
+   - Utilisez l'URL directement dans votre navigateur : `http://votre-serveur/overlay-lydia-discord/update.php`
+   - Vérifiez la réponse JSON pour les erreurs
+
+5. **Problèmes Twitch** :
+   - Vérifiez que votre Access Token n'est pas expiré
+   - Assurez-vous que le bot a les permissions `user:write:chat`
+   - Vérifiez que le Bot User ID correspond bien au compte du bot
+   - Le bot doit être modérateur de votre chaîne pour envoyer des messages
+
+### Interface d'administration
+
+Si vous ne pouvez pas accéder à l'interface d'administration :
+- Vérifiez que le code de connexion dans `config.php` est correct
+- Assurez-vous que les sessions PHP fonctionnent sur votre serveur
+- Consultez les logs d'erreur de votre serveur web
 
 ## 📞 Support
 

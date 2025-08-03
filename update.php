@@ -23,8 +23,9 @@ if (!$config || !is_array($config)) {
     exit;
 }
 
-// Inclusion du système Discord
-    require_once __DIR__ . '/discord.php';
+// Inclusion des systèmes de notification
+require_once __DIR__ . '/discord.php';
+require_once __DIR__ . '/twitch.php';
 
 // Récupération des paramètres depuis la configuration avec vérifications
 $url = isset($config['lydia']['url']) ? $config['lydia']['url'] : '';
@@ -135,15 +136,24 @@ if (!$resultat['success']) {
 // Extraction du montant
 $amount = extraireMontant($resultat['html']);
 
-// Initialisation du système Discord si l'URL est configurée
+// Initialisation des systèmes de notification
 $discordNotification = false;
+$twitchNotification = false;
+
+// Système Discord
 if ($config['discord']['actif'] && !empty($DISCORD_WEBHOOK_URL) && strpos($DISCORD_WEBHOOK_URL, "VOTRE_WEBHOOK") === false) {
     $discord = new DiscordWebhook($DISCORD_WEBHOOK_URL, __DIR__ . '/' . $config['technique']['fichier_donnees']);
-    
-    // Sauvegarde avec notification Discord automatique
     $discordNotification = $discord->sauvegarderAvecNotification($amount, $objectif);
-} else {
-    // Sauvegarde classique sans Discord
+}
+
+// Système Twitch
+$twitchBot = creerBotTwitch($config, __DIR__ . '/' . $config['technique']['fichier_donnees']);
+if ($twitchBot !== null) {
+    $twitchNotification = $twitchBot->sauvegarderAvecNotification($amount, $objectif);
+}
+
+// Sauvegarde classique si aucun système de notification n'est actif
+if (!$discordNotification && !$twitchNotification) {
     $data = [
         'montant' => $amount,
         'objectif' => $objectif,
@@ -165,6 +175,7 @@ echo json_encode([
     'pourcentage' => $objectif > 0 ? round(($amount / $objectif) * 100, 2) : 0,
     'derniere_maj' => date('Y-m-d H:i:s'),
     'discord_notification' => $discordNotification,
+    'twitch_notification' => $twitchNotification,
     'success' => true
 ]);
 

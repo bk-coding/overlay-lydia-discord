@@ -19,6 +19,16 @@ return array (
     'webhook_url' => 'https://discord.com/api/webhooks/VOTRE_WEBHOOK_ID/VOTRE_WEBHOOK_TOKEN',  // URL de votre webhook Discord
     'actif' => true,  // true pour activer les notifications Discord, false pour désactiver
   ),
+  'twitch' => 
+  array (
+    'actif' => false,                    // true pour activer les messages Twitch, false pour désactiver
+    'client_id' => 'VOTRE_CLIENT_ID',    // Client ID de votre application Twitch
+    'access_token' => 'VOTRE_ACCESS_TOKEN',  // Token d'accès OAuth du bot
+    'broadcaster_id' => 'VOTRE_BROADCASTER_ID',  // ID du streamer (votre ID utilisateur)
+    'bot_user_id' => 'VOTRE_BOT_USER_ID',        // ID utilisateur du bot
+    'message_contribution' => '🎉 Merci pour la contribution de {contribution} ! On est maintenant à {total}€ sur {objectif}€ ({pourcentage}%) !',  // Message lors d'une contribution
+    'message_test' => '🤖 Test du bot de cagnotte - Tout fonctionne !',  // Message de test
+  ),
   'apparence' => 
   array (
     // Couleurs de la barre de progression (dégradé)

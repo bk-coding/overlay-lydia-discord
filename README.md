@@ -69,16 +69,17 @@ Assurez-vous que le fichier `caisse.mp3` est présent dans le dossier pour les e
 
 ```
 overlay-lydia-discord/
+├── .gitignore          # 🚫 Fichiers à ignorer par Git
 ├── config.example.php  # 📋 Fichier de configuration d'exemple
 ├── config.php          # ⚙️ Configuration centralisée du système (à créer)
-├── generate_password.php # 🔐 Script pour générer un hash sécurisé (optionnel)
 ├── index.php           # 🔧 Interface d'administration web
 ├── overlay.php         # 🎨 Générateur d'overlay HTML
 ├── update.php          # 🔄 Script de mise à jour Lydia
 ├── discord.php         # 💬 Système de notifications Discord
-├── twitch.php          # 💬 Notifications Twitch Chat
+├── twitch.php          # 💜 Notifications Twitch Chat
+├── test_discord.php    # 🧪 Script de test indépendant pour Discord
+├── test_twitch.php     # 🧪 Script de test indépendant pour Twitch
 ├── test_contribution.php # 🧪 Script de test complet des notifications
-├── test_twitch.php     # 🧪 Script de test pour Twitch (optionnel)
 ├── data.json           # 📊 Données de la cagnotte (généré automatiquement)
 ├── caisse.mp3          # 🔊 Son de contribution
 └── README.md           # 📖 Documentation du système
@@ -286,11 +287,11 @@ Pour une sécurité maximale, utilisez un hash sécurisé :
 - Testez vos modifications instantanément
 
 #### Liens utiles disponibles dans l'interface :
-- **🎨 Voir l'overlay** : Aperçu direct de votre overlay
-- **🔄 Forcer la mise à jour** : Actualisation manuelle des données Lydia
-- **💬 Tester Discord** : Envoi d'un message de test sur Discord
-- **💜 Tester Twitch** : Envoi d'un message de test sur le chat Twitch
-- **🧪 Test complet** : Simulation d'une contribution avec notifications complètes
+- **📺 Voir l'overlay** : Aperçu direct de votre overlay (`overlay.php`)
+- **🔄 Tester la mise à jour** : Actualisation manuelle des données Lydia (`update.php`)
+- **💬 Tester Discord** : Test indépendant des notifications Discord (`test_discord.php`)
+- **💜 Tester Twitch** : Test indépendant des messages Twitch (`test_twitch.php`)
+- **🧪 Test complet** : Simulation d'une contribution complète avec tous les services (`test_contribution.php`)
 
 ### Pour OBS/Streamlabs :
 **URL de l'overlay** : `http://votre-serveur/overlay-lydia-discord/overlay.php`
@@ -376,17 +377,25 @@ Le système détecte automatiquement les nouvelles contributions et envoie :
 
 ### Tests de configuration
 
-1. **Test Twitch** (si configuré) :
+Vous pouvez tester chaque composant individuellement ou globalement :
+
+1. **Test Discord indépendant** :
+   ```bash
+   php test_discord.php
+   ```
+   Ce script teste uniquement la configuration et l'envoi de notifications Discord.
+
+2. **Test Twitch indépendant** (si configuré) :
    ```bash
    php test_twitch.php
    ```
-   Ce script vérifie la configuration Twitch et peut envoyer un message de test.
+   Ce script teste uniquement la configuration Twitch et l'envoi de messages dans le chat.
 
-2. **Test de contribution simulée** :
+3. **Test complet de contribution** :
    ```bash
    php test_contribution.php
    ```
-   Ce script simule une contribution à la cagnotte et teste les notifications sur Twitch et Discord.
+   Ce script simule une contribution complète et teste tous les services activés (Discord, Twitch, overlay, son).
 
 ### Problèmes courants
 
@@ -428,8 +437,11 @@ Si vous ne pouvez pas accéder à l'interface d'administration :
 Pour toute question ou problème, vérifiez d'abord que votre configuration dans `config.php` est correcte. La plupart des problèmes viennent d'une mauvaise configuration de ce fichier.
 
 ### Outils de diagnostic disponibles :
-- **Interface d'administration** : Testez chaque fonctionnalité individuellement
-- **Scripts de test** : `test_twitch.php` et `test_contribution.php`
+- **Interface d'administration** : Testez chaque fonctionnalité individuellement via les liens utiles
+- **Scripts de test indépendants** : 
+  - `test_discord.php` : Test spécifique des notifications Discord
+  - `test_twitch.php` : Test spécifique des messages Twitch
+  - `test_contribution.php` : Test complet de tous les services
 - **Logs d'erreur** : Consultez les logs de votre serveur web
 - **Console navigateur** : Vérifiez les erreurs JavaScript dans l'overlay
 

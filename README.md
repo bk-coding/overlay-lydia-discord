@@ -116,6 +116,55 @@ overlay-lydia-discord/
 
 > 📋 **Configuration Twitch** : Pour configurer Twitch, vous devez créer une application sur [dev.twitch.tv](https://dev.twitch.tv/console/apps) et obtenir un token OAuth avec les permissions `user:write:chat`.
 
+##### 📋 Guide détaillé pour obtenir les informations Twitch
+
+**Étape 1 : Créer une application Twitch**
+1. Rendez-vous sur [dev.twitch.tv/console/apps](https://dev.twitch.tv/console/apps)
+2. Connectez-vous avec votre compte Twitch
+3. Cliquez sur "Register Your Application"
+4. Remplissez le formulaire :
+   - **Name** : Nom de votre bot (ex: "MonBotCagnotte")
+   - **OAuth Redirect URLs** : `http://localhost`
+   - **Category** : "Chat Bot"
+   - **Client Type** : "Public"
+5. Cliquez sur "Create"
+6. **Notez le Client ID** qui s'affiche → `client_id`
+
+**Étape 2 : Obtenir un Access Token**
+1. Construisez cette URL (remplacez `VOTRE_CLIENT_ID`) :
+   ```
+   https://id.twitch.tv/oauth2/authorize?client_id=VOTRE_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=user:write:chat
+   ```
+2. Collez l'URL dans votre navigateur et appuyez sur Entrée
+3. Autorisez l'application en cliquant sur "Authorize"
+4. Vous serez redirigé vers une page d'erreur (c'est normal !)
+5. Dans la barre d'adresse, copiez la partie après `access_token=` et avant `&scope` → `access_token`
+
+**Étape 3 : Obtenir votre Broadcaster ID**
+- **Option A (API Twitch)** : Exécutez cette commande (remplacez les valeurs) :
+  ```bash
+  curl -H "Authorization: Bearer VOTRE_ACCESS_TOKEN" \
+       -H "Client-Id: VOTRE_CLIENT_ID" \
+       "https://api.twitch.tv/helix/users?login=VOTRE_NOM_UTILISATEUR"
+  ```
+  Dans la réponse JSON, cherchez `"id"` → `broadcaster_id`
+
+- **Option B (Site tiers)** : Allez sur [streamweasels.com/tools/convert-twitch-username-to-user-id](https://streamweasels.com/tools/convert-twitch-username-to-user-id), entrez votre nom d'utilisateur → `broadcaster_id`
+
+**Étape 4 : Obtenir votre Bot User ID**
+- Si le bot utilise le **même compte** que votre chaîne : `bot_user_id` = `broadcaster_id`
+- Si vous avez un **compte séparé** pour le bot : répétez l'étape 3 avec le nom d'utilisateur du bot
+
+**Récapitulatif des informations obtenues :**
+```php
+'client_id' => 'abc123...',         // De l'étape 1
+'access_token' => 'xyz789...',      // De l'étape 2  
+'broadcaster_id' => '123456789',    // De l'étape 3
+'bot_user_id' => '123456789',       // De l'étape 4
+```
+
+> ⚠️ **Important** : Le token expire généralement après 60 jours. Gardez vos tokens secrets et ne les partagez jamais publiquement !
+
 #### 4. Configuration Visuelle
 ```php
 'apparence' => [

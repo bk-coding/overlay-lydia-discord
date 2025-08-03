@@ -118,12 +118,13 @@ class TwitchChatBot {
         $donneesExistantes = $this->chargerDonnees();
         $ancienMontant = $donneesExistantes ? $donneesExistantes['montant'] : 0;
         
-        // Préparation des nouvelles données
-        $nouvellesDonnees = [
-            'montant' => $nouveauMontant,
-            'objectif' => $objectif,
-            'derniere_maj' => date('Y-m-d H:i:s')
-        ];
+        // Préparation des nouvelles données en préservant les données existantes
+        $nouvellesDonnees = $donneesExistantes && is_array($donneesExistantes) ? $donneesExistantes : [];
+        
+        // Mise à jour des champs nécessaires en préservant le reste
+        $nouvellesDonnees['montant'] = $nouveauMontant;
+        $nouvellesDonnees['objectif'] = $objectif;
+        $nouvellesDonnees['derniere_maj'] = date('Y-m-d H:i:s');
         
         // Sauvegarde des données
         if (file_put_contents($this->fichierDonnees, json_encode($nouvellesDonnees, JSON_PRETTY_PRINT)) === false) {

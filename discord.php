@@ -199,21 +199,22 @@ class DiscordWebhook {
      * @return bool Succès de la sauvegarde et notification
      */
     public function sauvegarderAvecNotification($montant, $objectif) {
-        // Lecture de l'ancien montant avec vérifications
+        // Lecture des données existantes avec vérifications
         $anciennesDonnees = $this->lireDonnees();
         $ancienMontant = 0;
         
+        // Préparation des nouvelles données en préservant les données existantes
+        $nouvellesdonnees = $anciennesDonnees && is_array($anciennesDonnees) ? $anciennesDonnees : [];
+        
         // Vérification que les données sont valides et contiennent le montant
-        if ($anciennesDonnees && is_array($anciennesDonnees) && isset($anciennesDonnees['montant'])) {
-            $ancienMontant = floatval($anciennesDonnees['montant']);
+        if (isset($nouvellesdonnees['montant'])) {
+            $ancienMontant = floatval($nouvellesdonnees['montant']);
         }
         
-        // Sauvegarde des nouvelles données
-        $nouvellesdonnees = [
-            'montant' => $montant,
-            'objectif' => $objectif,
-            'derniere_maj' => date('Y-m-d H:i:s')
-        ];
+        // Mise à jour des champs nécessaires en préservant le reste
+        $nouvellesdonnees['montant'] = $montant;
+        $nouvellesdonnees['objectif'] = $objectif;
+        $nouvellesdonnees['derniere_maj'] = date('Y-m-d H:i:s');
         
         $succes = file_put_contents($this->dataFile, json_encode($nouvellesdonnees, JSON_PRETTY_PRINT));
         

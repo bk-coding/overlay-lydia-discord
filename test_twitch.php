@@ -4,8 +4,13 @@
  * Permet de tester la configuration Twitch et l'envoi de messages
  */
 
-require_once 'config.php';
-require_once 'twitch.php';
+$config = require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/twitch.php';
+
+// Vérification que la configuration est bien chargée
+if (!$config || !is_array($config)) {
+    die('<h1>❌ Erreur</h1><p>Impossible de charger la configuration depuis config.php</p>');
+}
 
 // Configuration pour l'affichage
 header('Content-Type: text/html; charset=UTF-8');

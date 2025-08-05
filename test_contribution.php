@@ -6,10 +6,13 @@
  * en simulant une contribution sans avoir besoin d'une vraie donation.
  */
 
-require_once __DIR__ . '/config.php';
-
 // Charger la configuration
-$config = require __DIR__ . '/config.php';
+$config = require_once __DIR__ . '/config.php';
+
+// Vérification que la configuration est bien chargée
+if (!$config || !is_array($config)) {
+    die('<h1>❌ Erreur</h1><p>Impossible de charger la configuration depuis config.php</p>');
+}
 
 // Simuler des données de contribution
 $montantActuel = 150.50;
